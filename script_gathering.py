@@ -1,19 +1,54 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Mar 19 17:59:52 2019
+
+@author: Nathan Randle
+
+This is a program that web scrapes transcripts.foreverdreaming to gather all of the
+office quotes into one output file
+
+"""
+
 import requests
-from bs4 import BeautifulSoup
+import pandas as pd
+import numpy as np
+import bs4 
+data = []
 
-page = requests.get("http://transcripts.foreverdreaming.org/viewtopic.php?f=574&t=25442",
-                    headers = {'User-Agent': 'Script Gathering'})
+for i in range(25301,25499): #goes to 25498
+    page = requests.get(
+            "http://transcripts.foreverdreaming.org/viewtopic.php?f=574&t=%d" % i 
+            ,headers = {"user-agent": 
+                        "web scrapping to generate markov chains"})
+    soup = bs4.BeautifulSoup(page.content, 'html.parser')
+    
+    if "99" in soup.find("h2").get_text():
+        continue
+    print(soup.find("h2").get_text())
+    # this is where we hit up that text getter
+    
+    transcript = soup.find_all("p")[1:-3]
+    
+    transcript = [ line for line in transcript if "ad=doc" not in line.get_text() ]
+    speakers = soup.find_all("strong")[:-1]
+    
+    
+    for (speaker,line) in zip(speakers,transcript):
+        
+        episode_title = soup.find("h2").get_text()
+        # speaker is already done
+        cleaned_line = line.get_text()
+        
+        cleaned_line = cleaned_line.replace("\\","")
+        cleaned_line = cleaned_line.replace(speaker.get_text() + ": ","")
+        data.append([episode_title,
+                     speaker.get_text(),
+                     cleaned_line])
+npData = np.array(data)
+npDataHeaders = {"episode": npData[:,0],"speaker":npData[:,1],"line": npData[:,2]}
 
-soup = BeautifulSoup(page.content, 'html.parser')
+df = pd.DataFrame(npDataHeaders)
 
-transcript = list(soup.find_all("p"))[1:-3]
-speakers = list(soup.find_all("strong"))
-
-
-for line in transcript:
-    if "ad=document" in line.get_text():
-        transcript.remove(line)
-lines=[]
-for (line,speaker) in zip(transcript,speakers):
-    lines.append(line.get_text().replace(speaker.get_text() + ": ", ""))
-print(lines[-1])
+df.to_csv("Office-scripts.csv")   
+    
+    
