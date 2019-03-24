@@ -15,15 +15,18 @@ import numpy as np
 import bs4 
 data = []
 
-for i in range(25301,25499): #goes to 25498
+for i in range(25420,25421): #goes to (25301,25499)
+    print("getting page")
     page = requests.get(
             "http://transcripts.foreverdreaming.org/viewtopic.php?f=574&t=%d" % i 
             ,headers = {"user-agent": 
                         "web scrapping to generate markov chains"})
+    print("getting soup")
     soup = bs4.BeautifulSoup(page.content, 'html.parser')
     
-    if "99" in soup.find("h2").get_text():
+    if ("99" or "00" or "happy hour") in soup.find("h2").get_text():
         continue
+    
     print(soup.find("h2").get_text())
     # this is where we hit up that text getter
     
@@ -39,7 +42,6 @@ for i in range(25301,25499): #goes to 25498
         # speaker is already done
         cleaned_line = line.get_text()
         
-        cleaned_line = cleaned_line.replace("\\","")
         cleaned_line = cleaned_line.replace(speaker.get_text() + ": ","")
         data.append([episode_title,
                      speaker.get_text(),
@@ -49,6 +51,6 @@ npDataHeaders = {"episode": npData[:,0],"speaker":npData[:,1],"line": npData[:,2
 
 df = pd.DataFrame(npDataHeaders)
 
-df.to_csv("Office-scripts.csv")   
+df.to_csv("Office-scripts-happyhour.csv")   
     
     
