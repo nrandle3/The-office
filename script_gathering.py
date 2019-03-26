@@ -72,9 +72,6 @@ npDataHeaders = {"episode": npData[:,0],"speaker":npData[:,1],"line": npData[:,2
 df = pd.DataFrame(npDataHeaders)
 
 
-print(df.head(0))
-
-
 df.to_csv("Office-scripts.csv")   
     
     
