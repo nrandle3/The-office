@@ -10,12 +10,17 @@ office quotes into one output file
 """
 
 import requests
+
 import pandas as pd
+pd.set_option('display.max_rows', 500)
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.width', 1000)
+
 import numpy as np
 import bs4 
 data = []
 
-for i in range(25420,25421): #goes to (25301,25499)
+for i in range(25498,25499): #goes to (25301,25499)
     print("getting page")
     page = requests.get(
             "http://transcripts.foreverdreaming.org/viewtopic.php?f=574&t=%d" % i 
@@ -24,33 +29,52 @@ for i in range(25420,25421): #goes to (25301,25499)
     print("getting soup")
     soup = bs4.BeautifulSoup(page.content, 'html.parser')
     
-    if ("99" or "00" or "happy hour") in soup.find("h2").get_text():
+    if ("00") in soup.find("h2").get_text():
+        continue
+    
+    if ("99") in soup.find("h2").get_text():
+        continue
+    
+    if ("Happy Hour") in soup.find("h2").get_text():
         continue
     
     print(soup.find("h2").get_text())
-    # this is where we hit up that text getter
     
     transcript = soup.find_all("p")[1:-3]
     
     transcript = [ line for line in transcript if "ad=doc" not in line.get_text() ]
-    speakers = soup.find_all("strong")[:-1]
     
+    speakers = []
+    
+    for i in transcript:
+        speakers.append(i.find("strong"))
     
     for (speaker,line) in zip(speakers,transcript):
         
         episode_title = soup.find("h2").get_text()
         # speaker is already done
-        cleaned_line = line.get_text()
         
-        cleaned_line = cleaned_line.replace(speaker.get_text() + ": ","")
+        if speaker:
+            speaker = speaker.get_text()
+            cleaned_line = line.get_text().replace(speaker + ": ","")
+        else:
+            continue
+            
         data.append([episode_title,
-                     speaker.get_text(),
+                     speaker,
                      cleaned_line])
+    
+    
+    
 npData = np.array(data)
 npDataHeaders = {"episode": npData[:,0],"speaker":npData[:,1],"line": npData[:,2]}
 
 df = pd.DataFrame(npDataHeaders)
 
-df.to_csv("Office-scripts-happyhour.csv")   
+
+print(df.head(0))
+
+
+df.to_csv("Office-scripts.csv")   
     
     
