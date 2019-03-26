@@ -20,7 +20,7 @@ import numpy as np
 import bs4 
 data = []
 
-for i in range(25498,25499): #goes to (25301,25499)
+for i in range(25301,25499): #goes to (25301,25499)
     print("getting page")
     page = requests.get(
             "http://transcripts.foreverdreaming.org/viewtopic.php?f=574&t=%d" % i 
