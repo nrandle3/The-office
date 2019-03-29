@@ -11,7 +11,7 @@ pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
 
-df = pd.read_csv("file:///H:/The-office/Office-scripts.csv")
+df = pd.read_csv("file:///C:/Users/Nate/Documents/GitHub/The-office/Office-scripts.csv")
 
 mainCharacters = df.speaker.value_counts()[:22].index.values
 print(mainCharacters[1])
